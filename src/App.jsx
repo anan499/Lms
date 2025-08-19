@@ -89,7 +89,6 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/terms" element={<Terms />} />
       
-      
       </Routes>
     </Router>
   );

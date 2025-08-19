@@ -5,77 +5,123 @@ import Navbar from "./navbar";
 import Chatbot from "./components/Chatbot";
 
 export default function Dashboard() {
-  const [completedVideos, setCompletedVideos] = useState({});
-  const [notes, setNotes] = useState({});
+  const [completedLessons, setCompletedLessons] = useState({});
   const [studyHours, setStudyHours] = useState(0);
 
-  // ✅ Categories (unchanged)
+  //  To-Do state
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState("");
+
+  //  Track which syllabus is open
+  const [openLesson, setOpenLesson] = useState(null);
+
+  //  Motivation Quote
+  const [quote, setQuote] = useState("");
+
+  useEffect(() => {
+    const quotes = [
+      "Learning a new language is like gaining a new soul. 🌍",
+      "Consistency beats intensity — study a little every day. 📖",
+      "Mistakes are proof that you are trying. 💪",
+      "The limits of your language are the limits of your world. ✨",
+      "Practice makes progress, not perfection. 🎯",
+    ];
+
+    const today = new Date().toISOString().split("T")[0]; 
+    const savedData = JSON.parse(localStorage.getItem("dailyQuote")) || {};
+
+    if (savedData.date === today) {
+      setQuote(savedData.quote);
+    } else {
+      const newQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      setQuote(newQuote);
+      localStorage.setItem("dailyQuote", JSON.stringify({ date: today, quote: newQuote }));
+    }
+  }, []);
+
   const categories = {
     "Intermediate French": [
-      { id: 6, title: "Past & Future Tenses", video: "https://www.w3schools.com/html/mov_bbb.mp4" },
-      { id: 7, title: "Conversational Practice", video: "https://www.w3schools.com/html/movie.mp4" },
-      { id: 8, title: "Question Formation", video: "https://www.w3schools.com/html/mov_bbb.mp4" },
-      { id: 9, title: "Daily Life Vocabulary", video: "https://www.w3schools.com/html/movie.mp4" },
+      {
+        id: 1,
+        title: "Past & Future Tenses",
+        syllabus: [
+          { week: "Week 1", topics: ["Passé Composé basics", "Regular verbs"], exercise: "Translate 5 sentences" },
+          { week: "Week 2", topics: ["Imparfait vs Passé Composé", "Storytelling practice"], exercise: "Write a past event" },
+          { week: "Week 3", topics: ["Futur Proche & Futur Simple"], exercise: "Describe your weekend plans" },
+        ],
+      },
+      {
+        id: 2,
+        title: "Conversational Practice",
+        syllabus: [
+          { week: "Week 1", topics: ["Greetings", "Introducing Yourself"], exercise: "Practice dialogues" },
+          { week: "Week 2", topics: ["Ordering food", "Shopping vocabulary"], exercise: "Roleplay restaurant scene" },
+          { week: "Week 3", topics: ["Travel & Directions"], exercise: "Ask & give directions" },
+        ],
+      },
     ],
     "Advanced French": [
-      { id: 10, title: "Subjunctive Mood", video: "https://www.w3schools.com/html/mov_bbb.mp4" },
-      { id: 11, title: "Idioms & Expressions", video: "https://www.w3schools.com/html/movie.mp4" },
-      { id: 12, title: "Debating in French", video: "https://www.w3schools.com/html/mov_bbb.mp4" },
-      { id: 13, title: "Listening Comprehension", video: "https://www.w3schools.com/html/movie.mp4" },
-    ],
-    "French Culture & Lifestyle": [
-      { id: 14, title: "French Cuisine Vocabulary", video: "https://www.w3schools.com/html/mov_bbb.mp4" },
-      { id: 15, title: "French Art & Cinema", video: "https://www.w3schools.com/html/movie.mp4" },
-      { id: 16, title: "French History Basics", video: "https://www.w3schools.com/html/mov_bbb.mp4" },
-      { id: 17, title: "Traditions & Festivals", video: "https://www.w3schools.com/html/movie.mp4" },
-    ],
-    "Exam Preparation (DELF/DALF)": [
-      { id: 18, title: "DELF A1 Practice", video: "https://www.w3schools.com/html/mov_bbb.mp4" },
-      { id: 19, title: "DELF B2 Practice", video: "https://www.w3schools.com/html/movie.mp4" },
-      { id: 20, title: "DALF C1 Listening Exercises", video: "https://www.w3schools.com/html/mov_bbb.mp4" },
-      { id: 21, title: "Mock Exams", video: "https://www.w3schools.com/html/movie.mp4" },
+      {
+        id: 3,
+        title: "Subjunctive Mood",
+        syllabus: [
+          { week: "Week 1", topics: ["When to use Subjunctive"], exercise: "10 subjunctive sentences" },
+          { week: "Week 2", topics: ["Expressions requiring subjunctive"], exercise: "Dialogue with wishes/doubts" },
+          { week: "Week 3", topics: ["Subjunctive vs Indicative"], exercise: "Compare both moods" },
+        ],
+      },
+      {
+        id: 4,
+        title: "Idioms & Expressions",
+        syllabus: [
+          { week: "Week 1", topics: ["Daily expressions", "Proverbs"], exercise: "Learn 5 idioms & use them" },
+          { week: "Week 2", topics: ["Colloquial speech"], exercise: "Roleplay casual conversation" },
+          { week: "Week 3", topics: ["Regional expressions"], exercise: "Identify idioms by region" },
+        ],
+      },
     ],
   };
 
-  const allVideos = Object.values(categories).flat();
-  const totalVideos = allVideos.length;
-  const completedCount = Object.values(completedVideos).filter(Boolean).length;
+  const allLessons = Object.values(categories).flat();
+  const completedCount = Object.values(completedLessons).filter(Boolean).length;
+  const progress = Math.round((completedCount / allLessons.length) * 100);
 
-  // ✅ Toggle Completion & Add Study Time
   const toggleComplete = (id) => {
-    setCompletedVideos((prev) => {
+    setCompletedLessons((prev) => {
       const isCompleted = !prev[id];
-
-      if (isCompleted) {
-        // Each video completion = 0.5 hours (demo logic, can adjust)
-        setStudyHours((h) => h + 0.5);
-      } else {
-        setStudyHours((h) => Math.max(0, h - 0.5));
-      }
-
-      return {
-        ...prev,
-        [id]: isCompleted,
-      };
+      setStudyHours((h) => (isCompleted ? h + 1 : Math.max(0, h - 1)));
+      return { ...prev, [id]: isCompleted };
     });
   };
 
-  const handleNoteChange = (id, value) => {
-    setNotes((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
+  // To-Do Functions
+  const addTask = () => {
+    if (newTask.trim() === "") return;
+    setTasks([...tasks, { text: newTask, done: false }]);
+    setNewTask("");
+  };
+
+  const toggleTask = (index) => {
+    setTasks(
+      tasks.map((task, i) =>
+        i === index ? { ...task, done: !task.done } : task
+      )
+    );
+  };
+
+  const removeTask = (index) => {
+    setTasks(tasks.filter((_, i) => i !== index));
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-500 via-white to-red-500">
+    <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
       <Navbar />
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className="hidden md:block w-64 bg-white/60 backdrop-blur-md shadow-lg border-r border-gray-200 p-4 sticky top-0 h-screen overflow-y-auto">
-          <h2 className="text-lg font-bold text-blue-700 mb-4">📚 Course Categories</h2>
+        <aside className="hidden md:block w-64 bg-white shadow-lg border-r p-4 sticky top-0 h-screen overflow-y-auto">
+          <h2 className="text-lg font-bold text-gray-800 mb-4">📚 Course Categories</h2>
           <ul className="space-y-3">
             <li className="p-2 rounded-lg bg-blue-100/60 hover:bg-blue-200/70 cursor-pointer transition">
               <Link to="/beginner-french">Beginner French</Link>
@@ -84,7 +130,7 @@ export default function Dashboard() {
             {Object.keys(categories).map((category, idx) => (
               <li
                 key={idx}
-                className="p-2 rounded-lg bg-blue-100/60 hover:bg-blue-200/70 cursor-pointer transition"
+                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 cursor-pointer transition"
               >
                 {category}
               </li>
@@ -94,78 +140,107 @@ export default function Dashboard() {
 
         {/* Main Content */}
         <main className="flex-1 p-6">
-          <h1 className="text-3xl font-bold text-center mb-6 text-white drop-shadow-lg">
+          <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
             🇫🇷 French Learning Dashboard
           </h1>
 
-          {/* ✅ Progress Tracking */}
-          <div className="mb-8 p-6 bg-white/70 rounded-lg shadow-lg text-center">
-            <h2 className="text-xl font-semibold text-gray-800 mb-3">Your Progress</h2>
-            <p className="text-gray-600 mb-2">
-              Completed <span className="font-bold">{completedCount}</span> / {totalVideos} videos
-            </p>
-
-            <div className="w-full bg-gray-300 rounded-full h-4 overflow-hidden">
-              <div
-                className="bg-green-500 h-4 transition-all"
-                style={{ width: `${(completedCount / totalVideos) * 100}%` }}
-              />
+          {/* Motivation of the Day */}
+          <div className="mb-10">
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4 rounded-lg shadow-lg">
+              <h2 className="text-lg font-bold mb-2">💡 Motivation of the Day</h2>
+              <p className="italic">{quote}</p>
             </div>
-
-            <p className="mt-4 text-lg font-medium text-blue-700">
-              ⏳ Study Hours: {studyHours.toFixed(1)} hrs
-            </p>
           </div>
 
-          {/* ✅ Courses */}
-          {Object.entries(categories).map(([category, videos]) => (
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            {/* Progress */}
+            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
+              <h2 className="text-lg font-semibold text-gray-700 mb-4">📈 Your Progress</h2>
+              <div className="w-full bg-gray-200 rounded-lg h-6 mb-3">
+                <div
+                  className="bg-blue-500 h-6 rounded-lg transition-all"
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+              <p className="text-gray-600 font-medium">{progress}% Completed</p>
+              <p className="text-sm text-gray-500">
+                {completedCount} of {allLessons.length} lessons
+              </p>
+            </div>
+
+            {/* Study Hours */}
+            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
+              <h2 className="text-lg font-semibold text-gray-700 mb-4">⏳ Daily Study Hours</h2>
+              <div className="w-24 h-24 flex items-center justify-center rounded-full border-4 border-green-400 text-2xl font-bold text-green-600">
+                {studyHours}
+              </div>
+              <p className="text-gray-600 mt-3">hours logged today</p>
+            </div>
+          </div>
+
+          {/* Lessons List with Syllabus */}
+          {Object.entries(categories).map(([category, lessons]) => (
             <div key={category} className="mb-10">
-              <h2 className="text-2xl font-semibold text-blue-800 mb-4">{category}</h2>
-
+              <h2 className="text-2xl font-semibold text-gray-700 mb-4">{category}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {videos.map((video) => (
-                  <div
-                    key={video.id}
-                    className="flex flex-col justify-between p-4 border rounded-lg shadow-xl bg-white/70 backdrop-blur-sm min-h-[420px] transition hover:shadow-2xl"
-                  >
-                    <div>
-                      <h3 className="font-medium text-gray-800 mb-2">{video.title}</h3>
-
-                      <video controls className="w-full rounded-lg mb-3 h-40 object-cover">
-                        <source src={video.video} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
+                {lessons.map((lesson) => (
+                  <div key={lesson.id} className="bg-white border rounded-lg shadow-sm hover:shadow-md transition p-4">
+                    {/* Lesson Header */}
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-gray-800">{lesson.title}</span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => toggleComplete(lesson.id)}
+                          className={`px-3 py-1 rounded text-sm font-medium transition ${
+                            completedLessons[lesson.id]
+                              ? "bg-green-500 text-white hover:bg-green-600"
+                              : "bg-blue-500 text-white hover:bg-blue-600"
+                          }`}
+                        >
+                          {completedLessons[lesson.id] ? "Completed" : "Mark Complete"}
+                        </button>
+                        <button
+                          onClick={() =>
+                            setOpenLesson(openLesson === lesson.id ? null : lesson.id)
+                          }
+                          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm"
+                        >
+                          {openLesson === lesson.id ? "Hide Syllabus" : "View Syllabus"}
+                        </button>
+                      </div>
                     </div>
 
-                    <div className="mt-auto">
-                      <button
-                        onClick={() => toggleComplete(video.id)}
-                        className={`px-4 py-2 rounded text-sm font-medium transition w-full ${
-                          completedVideos[video.id]
-                            ? "bg-red-500 text-white hover:bg-red-600"
-                            : "bg-blue-500 text-white hover:bg-blue-600"
-                        }`}
-                      >
-                        {completedVideos[video.id] ? "Completed ✅" : "Mark as Complete"}
-                      </button>
-
-                      <textarea
-                        value={notes[video.id] || ""}
-                        onChange={(e) => handleNoteChange(video.id, e.target.value)}
-                        placeholder="Write your notes here..."
-                        className="mt-3 w-full p-3 border rounded-md text-sm focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm"
-                        rows={3}
-                      />
-                    </div>
+                    {/* Collapsible Syllabus */}
+                    {openLesson === lesson.id && (
+                      <div className="mt-3 bg-gray-50 rounded-lg p-3 text-sm">
+                        {lesson.syllabus.map((week, idx) => (
+                          <div key={idx} className="mb-3">
+                            <h4 className="font-semibold text-gray-700">{week.week}</h4>
+                            <ul className="list-disc ml-5 text-gray-600">
+                              {week.topics.map((t, i) => (
+                                <li key={i}>{t}</li>
+                              ))}
+                            </ul>
+                            <p className="mt-1 text-blue-600">✏️ Exercise: {week.exercise}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
           ))}
+
+          {/* Chatbot */}
+          <div className="mt-10">
+            <Chatbot />
+          </div>
         </main>
       </div>
 
-      {/* ✅ Floating Chatbot */}
+      {    }
       <Chatbot />
     </div>
   );

@@ -21,6 +21,7 @@ const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 // POST /chat  -> { message: string, history?: [{role, content}] }
 app.post("/chat", async (req, res) => {
   try {
+    console.log("api key is " + process.env.OPENAI_API_KEY);
     const { message, history = [] } = req.body;
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "message is required" });
