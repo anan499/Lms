@@ -5,13 +5,20 @@ import SignupPage from "./SignupPage";
 import Dashboard from "./Dashboard";
 import bgImage from "./assets/effile.png";
 
-// Extra Pages
+
 import Explore from "./data/Explore"; 
 import Settings from "./data/Settings";
 import Exams from "./data/Exams";
 import About from "./data/About";
 import Terms from "./data/Terms"; 
+import FrenchBasics from "./components/FrenchBasics";
+import IntermediateFrench from "./components/IntermediateFrench";
+import AdvancedFrench from "./components/AdvancedFrench";
+import ConversationalFrench from "./components/ConversationalFrench";
 
+import ProfileSettings from "./navbarsetting/ProfileSettings";
+import AccountSecurity from "./navbarsetting/AccountSecurity";
+import NotificationSettings from "./navbarsetting/NotificationSettings";
 
 // ---------------- AUTH TABS ----------------
 function AuthTabs() {
@@ -88,7 +95,17 @@ export default function App() {
         <Route path="/exams" element={<Exams />} />
         <Route path="/about" element={<About />} />
         <Route path="/terms" element={<Terms />} />
-      
+       <Route path="/french-basics" element={<FrenchBasics />} />
+        <Route path="/intermediate-french" element={<IntermediateFrench />} />
+        <Route path="/advanced-french" element={<AdvancedFrench />} />
+        <Route path="/conversational-french" element={<ConversationalFrench />} />
+          <Route path="/profile-settings" element={<ProfileSettings />} />
+        <Route path="/account-security" element={<AccountSecurity />} />
+        <Route path="/notifications" element={<NotificationSettings />} />
+
+        {/* Catch-all for 404 */}
+        <Route path="*" element={<div>Page Not Found</div>} />
+        
       </Routes>
     </Router>
   );

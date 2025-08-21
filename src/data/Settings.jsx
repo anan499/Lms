@@ -1,6 +1,7 @@
 // src/pages/Settings.jsx
 import React from "react";
 import { User, Shield, Bell, Globe, Moon } from "lucide-react"; // icons
+import { Link } from "react-router-dom";
 
 export default function Settings() {
   const settings = [
@@ -8,26 +9,31 @@ export default function Settings() {
       title: "Profile Settings",
       description: "Update your personal information and profile picture.",
       icon: <User className="w-7 h-7 text-blue-600" />,
+      link: "/profile-settings", 
     },
     {
       title: "Account Security",
       description: "Change password, enable 2FA, and manage login devices.",
       icon: <Shield className="w-7 h-7 text-green-600" />,
+      link: "/account-security", 
     },
     {
       title: "Notifications",
       description: "Manage email, push, and SMS notifications.",
       icon: <Bell className="w-7 h-7 text-yellow-600" />,
+      link: "/notifications", 
     },
     {
       title: "Language",
       description: "Choose your preferred language for the platform.",
       icon: <Globe className="w-7 h-7 text-purple-600" />,
+      link: "/language", 
     },
     {
       title: "Theme",
       description: "Switch between light and dark mode for better visibility.",
       icon: <Moon className="w-7 h-7 text-gray-700" />,
+      link: "/theme", // (optional)
     },
   ];
 
@@ -61,9 +67,18 @@ export default function Settings() {
               <p className="text-gray-600 text-sm mt-2 leading-relaxed">
                 {item.description}
               </p>
-              <button className="mt-4 px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                Manage
-              </button>
+
+              {item.link ? (
+                <Link to={item.link}>
+                  <button className="mt-4 px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    Manage
+                  </button>
+                </Link>
+              ) : (
+                <button className="mt-4 px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                  Manage
+                </button>
+              )}
             </div>
           ))}
         </div>
